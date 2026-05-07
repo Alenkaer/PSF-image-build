@@ -1,0 +1,33 @@
+name: Build and push PSF container
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: [self-hosted, linux, truenas-docker]
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+
+      - name: Log in to GHCR
+        run: printenv GHCR_TOKEN | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        run: |
+          docker build \
+            -t ghcr.io/alenkaer/psf:latest \
+            -t ghcr.io/alenkaer/psf:${{ github.sha }} \
+            .
+          docker push ghcr.io/alenkaer/psf:latest
+          docker push ghcr.io/alenkaer/psf:${{ github.sha }}
+
+      - name: Clean up credentials
+        if: always()
+        run: docker logout ghcr.io
