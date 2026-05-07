@@ -1,0 +1,7 @@
+.env
+.env.*
+*.pfx
+*.pem
+*.key
+certs/
+docker-compose.yml
