@@ -14,10 +14,9 @@ RUN groupadd -g ${RUNNER_GID} psfrunner \
     && mkdir -p /home/psfrunner/.local/share \
     && chown -R ${RUNNER_UID}:${RUNNER_GID} /home/psfrunner/.local
 
-# Install PowerShell modules with pinned versions
+# Install PowerShell modules with pinned versions (no third-party HTTP framework)
 SHELL ["pwsh", "-Command"]
 RUN Set-PSRepository PSGallery -InstallationPolicy Trusted; \
-    Install-Module Pode -RequiredVersion 2.11.1 -Scope AllUsers -Force; \
     Install-Module Az.Accounts -RequiredVersion 3.0.5 -Scope AllUsers -Force; \
     Install-Module Az.KeyVault -RequiredVersion 6.3.0 -Scope AllUsers -Force; \
     Install-Module ExchangeOnlineManagement -RequiredVersion 3.6.0 -Scope AllUsers -Force; \
