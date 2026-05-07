@@ -1,12 +1,12 @@
-# PSF Pode
+# PSF
 
 PowerShell HTTP API for Exchange Online compliance checks.  
-Runs as a Docker container using [Pode](https://badgerati.github.io/Pode/).
+Runs as a Docker container using .NET's built-in `System.Net.HttpListener` (zero third-party HTTP dependencies).
 
 ## Build
 
 ```bash
-docker build -t psf-pode .
+docker build -t psf .
 ```
 
 ## Environment variables (required at runtime)

@@ -1,23 +1,38 @@
-# Helper: connect to a tenant's Exchange Online via app-only certificate auth.
-# The cert is stored in Key Vault. SP credentials are in container env vars.
-#
-# Flow: Authenticate to Azure (client secret from env) → fetch cert from Key Vault → Connect-ExchangeOnline with cert.
+# Connect to a tenant's Exchange Online via app-only certificate auth.
+# Cert stored in Azure Key Vault. SP credentials read from container env vars (§3).
+# Flow: Authenticate to Azure (client secret) → fetch cert from Key Vault → Connect-ExchangeOnline.
 
 function Connect-ExoForTenant {
+    [CmdletBinding()]
     param(
-        [Parameter(Mandatory)] [string] $TenantDomain,
-        [Parameter(Mandatory)] [string] $AppId,
-        [Parameter()] [string] $CertName = $env:DEFAULT_CERT_NAME
+        [Parameter(Mandatory)]
+        [ValidatePattern('^[a-zA-Z0-9\.\-]+$')]
+        [string] $TenantDomain,
+
+        [Parameter(Mandatory)]
+        [ValidatePattern('^[0-9a-fA-F\-]{36}$')]
+        [string] $AppId,
+
+        [Parameter()]
+        [ValidatePattern('^[a-zA-Z0-9\-]+$')]
+        [string] $CertName = $env:DEFAULT_CERT_NAME
     )
 
+    # §4: Validate each credential env var individually
     if ([string]::IsNullOrWhiteSpace($env:KEYVAULT_URI)) {
         throw "KEYVAULT_URI environment variable not set"
+    }
+    if ([string]::IsNullOrWhiteSpace($env:SP_APP_ID)) {
+        throw "SP_APP_ID environment variable not set"
+    }
+    if ([string]::IsNullOrWhiteSpace($env:SP_TENANT_ID)) {
+        throw "SP_TENANT_ID environment variable not set"
     }
     if ([string]::IsNullOrWhiteSpace($env:SP_CLIENT_SECRET)) {
         throw "SP_CLIENT_SECRET environment variable not set"
     }
 
-    # Authenticate to Azure using SP credentials from env
+    # §3: Authenticate to Azure using SP credentials from env (never hardcoded)
     $secureSecret = ConvertTo-SecureString $env:SP_CLIENT_SECRET -AsPlainText -Force
     $credential = [PSCredential]::new($env:SP_APP_ID, $secureSecret)
     Connect-AzAccount -ServicePrincipal `
@@ -30,10 +45,10 @@ function Connect-ExoForTenant {
     # Pull the certificate from Key Vault
     $cert = Get-AzKeyVaultCertificate -VaultName $vaultName -Name $CertName
     if (-not $cert) {
-        throw "Certificate '$CertName' not found in Key Vault '$vaultName'"
+        throw "Certificate not found in Key Vault"
     }
 
-    # Load the cert with its private key
+    # Load the cert with its private key (PFX bytes from Key Vault secret)
     $certSecret = Get-AzKeyVaultSecret -VaultName $vaultName -Name $CertName -AsPlainText
     $certBytes = [Convert]::FromBase64String($certSecret)
     $pfxCert = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new(

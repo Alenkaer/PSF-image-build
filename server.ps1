@@ -1,8 +1,11 @@
-# PSF HTTP Server — raw HttpListener (zero third-party dependencies)
+# PSF HTTP Server — .NET System.Net.HttpListener (zero third-party dependencies)
 # Exposes 8 Exchange Online compliance checks as HTTP POST endpoints.
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+
+# §6.4: Maximum request body size (prevent resource exhaustion)
+$script:MaxBodyBytes = 65536  # 64KB
 
 # ── Load shared helpers + function handlers ───────────────────────
 . $PSScriptRoot/shared/ExoConnect.ps1
@@ -51,7 +54,7 @@ try {
         $path = $request.Url.AbsolutePath
         $method = $request.HttpMethod
 
-        # Request logging
+        # §8.2: Request logging (who, what, when, source IP)
         Write-Host "[$([DateTime]::UtcNow.ToString('o'))] $method $path from $($request.RemoteEndPoint)"
 
         try {
@@ -64,7 +67,7 @@ try {
                 continue
             }
 
-            # ── Auth check (all other endpoints) ──────────────────
+            # ── §4: Auth check (all other endpoints) ─────────────
             $apiKey = $request.Headers['x-functions-key']
             if ([string]::IsNullOrWhiteSpace($apiKey) -or $apiKey -ne $env:PSF_FUNCTION_KEY) {
                 Send-JsonResponse -Response $response -StatusCode 401 -Body @{ error = 'Unauthorized' }
@@ -75,7 +78,7 @@ try {
             if ($path -match '^/api/([A-Za-z]+)$') {
                 $fnName = $Matches[1]
 
-                # Method check
+                # §6.1: Method enforcement
                 if ($method -ne 'POST') {
                     Send-JsonResponse -Response $response -StatusCode 405 -Body @{ error = 'Method not allowed' }
                     continue
@@ -84,6 +87,19 @@ try {
                 # Route exists?
                 if (-not $script:Routes.ContainsKey($fnName)) {
                     Send-JsonResponse -Response $response -StatusCode 404 -Body @{ error = 'Not found' }
+                    continue
+                }
+
+                # §6.4: Body size limit (before ConvertFrom-Json on untrusted input)
+                if ($request.ContentLength64 -gt $script:MaxBodyBytes) {
+                    Send-JsonResponse -Response $response -StatusCode 413 -Body @{ error = 'Request body too large' }
+                    continue
+                }
+
+                # §6.1: Content-Type validation
+                $ct = $request.ContentType
+                if ($request.HasEntityBody -and $ct -and -not $ct.StartsWith('application/json')) {
+                    Send-JsonResponse -Response $response -StatusCode 415 -Body @{ error = 'Content-Type must be application/json' }
                     continue
                 }
 
@@ -104,11 +120,12 @@ try {
                     $result = & $script:Routes[$fnName] -Body $body
                     Send-JsonResponse -Response $response -StatusCode 200 -Body $result
                 } catch {
+                    # §8.3: Detail to log, generic message to client
                     Write-Warning "[error] $fnName : $($_.Exception.Message)"
                     Send-JsonResponse -Response $response -StatusCode 500 -Body @{
                         pass   = $false
                         na     = $true
-                        detail = "PSF $fnName error: $($_.Exception.Message)"
+                        detail = "PSF $fnName: check failed"
                     }
                 }
                 continue
@@ -118,6 +135,7 @@ try {
             Send-JsonResponse -Response $response -StatusCode 404 -Body @{ error = 'Not found' }
 
         } catch {
+            # §8.3: Generic error to client, detail to log
             Write-Warning "[fatal] Request handler error: $($_.Exception.Message)"
             try {
                 Send-JsonResponse -Response $response -StatusCode 500 -Body @{ error = 'Internal server error' }
