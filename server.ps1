@@ -125,7 +125,7 @@ try {
                     Send-JsonResponse -Response $response -StatusCode 500 -Body @{
                         pass   = $false
                         na     = $true
-                        detail = "PSF $fnName: check failed"
+                        detail = "PSF ${fnName}: check failed"
                     }
                 }
                 continue
