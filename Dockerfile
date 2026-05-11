@@ -37,6 +37,6 @@ EXPOSE 8080
 
 # Healthcheck — no shell variables (avoids Docker Compose $ interpolation)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
-    CMD ["pwsh", "-c", "exit (0 -eq (Invoke-WebRequest -Uri http://localhost:8080/health -UseBasicParsing -TimeoutSec 3).StatusCode - 200)"]
+    CMD ["pwsh", "-c", "if ((Invoke-WebRequest -Uri http://localhost:8080/health -UseBasicParsing -TimeoutSec 3).StatusCode -eq 200) { exit 0 } else { exit 1 }"]
 
 ENTRYPOINT ["pwsh", "-File", "/app/server.ps1"]
