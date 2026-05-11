@@ -17,8 +17,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # §8.4: Non-root user
 RUN groupadd -g ${RUNNER_GID} psfrunner \
     && useradd -u ${RUNNER_UID} -g ${RUNNER_GID} -m -s /bin/bash psfrunner \
-    && mkdir -p /home/psfrunner/.local/share \
-    && chown -R ${RUNNER_UID}:${RUNNER_GID} /home/psfrunner/.local
+    && mkdir -p /home/psfrunner/.local/share/powershell \
+    && mkdir -p /home/psfrunner/.cache \
+    && mkdir -p /home/psfrunner/.config \
+    && chown -R ${RUNNER_UID}:${RUNNER_GID} /home/psfrunner
+
+ENV HOME=/home/psfrunner
 
 # §2.1, §2.2: PowerShell modules — pinned exact versions, no third-party HTTP framework
 # ExchangeOnlineManagement 3.6.0 — Microsoft, MIT license, ExO cmdlets
