@@ -75,7 +75,7 @@ try {
             }
 
             # ── Route matching: POST /api/<FunctionName> ──────────
-            if ($path -match '^/api/([A-Za-z]+)$') {
+            if ($path -match '^/api/([A-Za-z0-9]+)$') {
                 $fnName = $Matches[1]
 
                 # §6.1: Method enforcement
