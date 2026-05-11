@@ -3,14 +3,15 @@ function Invoke-ExternalInOutlook {
 
     $tenantDomain = $Body.tenantDomain ?? $env:DEFAULT_TENANT_DOMAIN
     $appId        = $Body.appId        ?? $env:DEFAULT_APP_ID
-    $certName     = $Body.certName     ?? $env:DEFAULT_CERT_NAME
+    $tenantId     = $Body.tenantId     ?? $env:DEFAULT_TENANT_ID
+    $clientSecret = $Body.clientSecret ?? $env:DEFAULT_CLIENT_SECRET
 
-    if ([string]::IsNullOrWhiteSpace($tenantDomain) -or [string]::IsNullOrWhiteSpace($appId)) {
-        throw "tenantDomain and appId required"
+    if ([string]::IsNullOrWhiteSpace($tenantDomain) -or [string]::IsNullOrWhiteSpace($appId) -or [string]::IsNullOrWhiteSpace($tenantId) -or [string]::IsNullOrWhiteSpace($clientSecret)) {
+        throw "tenantDomain, appId, tenantId and clientSecret required"
     }
 
     try {
-        Connect-ExoForTenant -TenantDomain $tenantDomain -AppId $appId -CertName $certName
+        Connect-ExoForTenant -TenantDomain $tenantDomain -AppId $appId -TenantId $tenantId -ClientSecret $clientSecret
 
         $cfg = Get-ExternalInOutlook -ErrorAction Stop
         $enabled = $false

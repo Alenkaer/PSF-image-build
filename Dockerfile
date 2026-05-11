@@ -21,14 +21,11 @@ RUN groupadd -g ${RUNNER_GID} psfrunner \
     && chown -R ${RUNNER_UID}:${RUNNER_GID} /home/psfrunner/.local
 
 # §2.1, §2.2: PowerShell modules — pinned exact versions, no third-party HTTP framework
-# Az.Accounts 3.0.5 — Microsoft, MIT license, Azure SP auth
-# Az.KeyVault 6.3.0 — Microsoft, MIT license, cert retrieval from Key Vault
 # ExchangeOnlineManagement 3.6.0 — Microsoft, MIT license, ExO cmdlets
 # Pester 5.6.1 — community standard PS test framework, MIT license, 10M+ downloads
+# Note: Az.Accounts + Az.KeyVault removed — auth uses client secret (MSAL) directly
 SHELL ["pwsh", "-Command"]
 RUN Set-PSRepository PSGallery -InstallationPolicy Trusted; \
-    Install-Module Az.Accounts -RequiredVersion 3.0.5 -Scope AllUsers -Force; \
-    Install-Module Az.KeyVault -RequiredVersion 6.3.0 -Scope AllUsers -Force; \
     Install-Module ExchangeOnlineManagement -RequiredVersion 3.6.0 -Scope AllUsers -Force; \
     Install-Module Pester -RequiredVersion 5.6.1 -Scope AllUsers -Force
 
