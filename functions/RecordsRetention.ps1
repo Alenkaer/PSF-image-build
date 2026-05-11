@@ -11,7 +11,7 @@ function Invoke-RecordsRetention {
     }
 
     try {
-        Connect-ExoForTenant -TenantDomain $tenantDomain -AppId $appId -TenantId $tenantId -ClientSecret $clientSecret
+        Connect-SccForTenant -TenantDomain $tenantDomain -AppId $appId -TenantId $tenantId -ClientSecret $clientSecret
 
         $events = Get-ComplianceRetentionEvent -ErrorAction Stop
         $total = ($events | Measure-Object).Count

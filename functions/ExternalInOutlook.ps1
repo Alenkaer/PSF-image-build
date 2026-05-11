@@ -13,7 +13,21 @@ function Invoke-ExternalInOutlook {
     try {
         Connect-ExoForTenant -TenantDomain $tenantDomain -AppId $appId -TenantId $tenantId -ClientSecret $clientSecret
 
-        $cfg = Get-ExternalInOutlook -ErrorAction Stop
+        # Retry up to 2 times on transient MS server-side errors
+        $cfg = $null
+        $lastErr = $null
+        for ($attempt = 1; $attempt -le 3; $attempt++) {
+            try {
+                $cfg = Get-ExternalInOutlook -ErrorAction Stop
+                $lastErr = $null
+                break
+            } catch {
+                $lastErr = $_.Exception.Message
+                if ($attempt -lt 3) { Start-Sleep -Seconds 2 }
+            }
+        }
+        if ($lastErr) { throw $lastErr }
+
         $enabled = $false
         if ($cfg) { $enabled = [bool]($cfg | Select-Object -First 1 -ExpandProperty Enabled -ErrorAction SilentlyContinue) }
         $pass = $enabled

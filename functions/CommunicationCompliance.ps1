@@ -11,7 +11,7 @@ function Invoke-CommunicationCompliance {
     }
 
     try {
-        Connect-ExoForTenant -TenantDomain $tenantDomain -AppId $appId -TenantId $tenantId -ClientSecret $clientSecret
+        Connect-SccForTenant -TenantDomain $tenantDomain -AppId $appId -TenantId $tenantId -ClientSecret $clientSecret
 
         $policies = Get-SupervisoryReviewPolicyV2 -ErrorAction Stop |
             Where-Object { $_.IsValid -eq $true -and $_.Enabled -eq $true }

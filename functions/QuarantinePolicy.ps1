@@ -18,9 +18,9 @@ function Invoke-QuarantinePolicy {
                           ESNEnabled, EndUserSpamNotificationFrequency,
                           QuarantineRetentionDays, IncludeMessagesFromBlockedSenderAddress
 
-        $totalPolicies = ($policies | Measure-Object).Count
-        $hasReleaseNotification = ($policies | Where-Object { $_.ESNEnabled }).Count -gt 0
-        $hasNonDefault = ($policies | Where-Object { $_.Name -notin 'AdminOnlyAccessPolicy','DefaultFullAccessPolicy','DefaultFullAccessWithNotificationPolicy','NotificationEnabledPolicy' }).Count -gt 0
+        $totalPolicies = @($policies).Count
+        $hasReleaseNotification = @($policies | Where-Object { $_.ESNEnabled }).Count -gt 0
+        $hasNonDefault = @($policies | Where-Object { $_.Name -notin 'AdminOnlyAccessPolicy','DefaultFullAccessPolicy','DefaultFullAccessWithNotificationPolicy','NotificationEnabledPolicy' }).Count -gt 0
         $pass = $hasReleaseNotification -and $totalPolicies -ge 2
 
         return @{

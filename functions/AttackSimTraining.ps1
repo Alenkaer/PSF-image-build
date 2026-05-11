@@ -11,7 +11,7 @@ function Invoke-AttackSimTraining {
     }
 
     try {
-        Connect-ExoForTenant -TenantDomain $tenantDomain -AppId $appId -TenantId $tenantId -ClientSecret $clientSecret
+        Connect-SccForTenant -TenantDomain $tenantDomain -AppId $appId -TenantId $tenantId -ClientSecret $clientSecret
 
         $since = (Get-Date).AddMonths(-12)
         $campaigns = Get-AttackSimulationTrainingCampaign -ErrorAction Stop |
