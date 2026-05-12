@@ -30,6 +30,11 @@ function Invoke-SensitivityLabels {
             policies        = @($policies | Select-Object -First 10)
             detail          = "$($labels.Count) sensitivity labels ($($activeLabels.Count) active), $($policies.Count) label policies"
         }
+    } catch {
+        if ($_.Exception.Message -like '*is not recognized*') {
+            return @{ pass = $false; na = $true; na_reason = 'not_licensed'; detail = "SensitivityLabels cmdlet not available  -- feature not licensed on this tenant" }
+        }
+        throw
     } finally {
         Disconnect-Exo
     }

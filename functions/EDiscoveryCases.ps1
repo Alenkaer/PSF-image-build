@@ -27,6 +27,11 @@ function Invoke-EDiscoveryCases {
             cases  = @($cases | Select-Object -First 20)
             detail = "$($cases.Count) eDiscovery cases ($($active.Count) active, $($closed.Count) closed)"
         }
+    } catch {
+        if ($_.Exception.Message -like '*is not recognized*') {
+            return @{ pass = $false; na = $true; na_reason = 'not_licensed'; detail = "EDiscoveryCases cmdlet not available  -- feature not licensed on this tenant" }
+        }
+        throw
     } finally {
         Disconnect-Exo
     }

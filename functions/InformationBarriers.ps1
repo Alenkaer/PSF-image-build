@@ -31,6 +31,11 @@ function Invoke-InformationBarriers {
             segments         = @($segments | Select-Object -First 20)
             detail           = "$($policies.Count) IB policies ($($active.Count) active), $($segments.Count) segments"
         }
+    } catch {
+        if ($_.Exception.Message -like '*is not recognized*') {
+            return @{ pass = $false; na = $true; na_reason = 'not_licensed'; detail = "InformationBarriers cmdlet not available  -- feature not licensed on this tenant" }
+        }
+        throw
     } finally {
         Disconnect-Exo
     }

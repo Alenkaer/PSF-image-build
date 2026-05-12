@@ -14,8 +14,10 @@ function Invoke-M365AppsUpdate {
         Connect-ExoForTenant -TenantDomain $tenantDomain -AppId $appId -TenantId $tenantId -ClientSecret $clientSecret
 
         $cfg = Get-OrganizationConfig -ErrorAction Stop
-        $channel = $cfg.OfficeUpdateChannel
-        if (-not $channel) { $channel = 'unknown' }
+        $channel = if ($cfg.PSObject.Properties['OfficeUpdateChannel']) { $cfg.OfficeUpdateChannel } else { $null }
+        if (-not $channel) {
+            return @{ pass = $false; na = $true; detail = 'OfficeUpdateChannel not configured -- tenant may not have M365 Apps' }
+        }
         $goodChannels = @('MonthlyEnterprise','Monthly','Current','CurrentPreview')
         $pass = $channel -in $goodChannels
 

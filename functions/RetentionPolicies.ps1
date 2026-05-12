@@ -28,6 +28,11 @@ function Invoke-RetentionPolicies {
             rules           = @($rules | Select-Object -First 20)
             detail          = "$($policies.Count) retention policies ($(@($policies | Where-Object { $_.Enabled }).Count) enabled), $($rules.Count) rules"
         }
+    } catch {
+        if ($_.Exception.Message -like '*is not recognized*') {
+            return @{ pass = $false; na = $true; na_reason = 'not_licensed'; detail = "RetentionPolicies cmdlet not available  -- feature not licensed on this tenant" }
+        }
+        throw
     } finally {
         Disconnect-Exo
     }

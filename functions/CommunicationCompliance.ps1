@@ -24,6 +24,11 @@ function Invoke-CommunicationCompliance {
             recent          = @($policies | Select-Object -First 10 | ForEach-Object { @{ name=$_.Name; enabled=$_.Enabled } })
             detail          = "$total aktive Communication Compliance policies"
         }
+    } catch {
+        if ($_.Exception.Message -like '*is not recognized*') {
+            return @{ pass = $false; na = $true; na_reason = 'not_licensed'; detail = "CommunicationCompliance cmdlet not available  -- feature not licensed on this tenant" }
+        }
+        throw
     } finally {
         Disconnect-Exo
     }

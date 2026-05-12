@@ -30,6 +30,11 @@ function Invoke-DlpPolicies {
             rules          = @($rules | Select-Object -First 20)
             detail         = "$($policies.Count) DLP policies ($($enabledPolicies.Count) enabled), $($rules.Count) rules"
         }
+    } catch {
+        if ($_.Exception.Message -like '*is not recognized*') {
+            return @{ pass = $false; na = $true; na_reason = 'not_licensed'; detail = "DlpPolicies cmdlet not available  -- feature not licensed on this tenant" }
+        }
+        throw
     } finally {
         Disconnect-Exo
     }

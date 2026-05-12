@@ -23,6 +23,11 @@ function Invoke-RecordsRetention {
             recent       = @($events | Select-Object -First 10 | ForEach-Object { @{ name=$_.Name; eventType=$_.EventType; eventDateTime=$_.EventDateTime } })
             detail       = "$total records retention events (disposition reviews)"
         }
+    } catch {
+        if ($_.Exception.Message -like '*is not recognized*') {
+            return @{ pass = $false; na = $true; na_reason = 'not_licensed'; detail = "RecordsRetention cmdlet not available  -- feature not licensed on this tenant" }
+        }
+        throw
     } finally {
         Disconnect-Exo
     }

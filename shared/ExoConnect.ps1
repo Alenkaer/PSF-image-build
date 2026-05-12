@@ -43,7 +43,7 @@ function Connect-ExoForTenant {
         -AccessToken $tokenResponse.access_token `
         -Organization $TenantDomain `
         -ShowBanner:$false `
-        -CommandName 'Get-QuarantinePolicy','Get-SharingPolicy','Get-OrganizationConfig','Get-ExternalInOutlook','Get-OutboundConnector'
+        -CommandName 'Get-QuarantinePolicy','Get-SharingPolicy','Get-OrganizationConfig','Get-ExternalInOutlook','Get-OutboundConnector','Get-AttackSimulationTrainingCampaign'
 }
 
 # Security & Compliance session for S&C-only cmdlets
@@ -88,7 +88,7 @@ function Connect-SccForTenant {
         -AccessToken $tokenResponse.access_token `
         -Organization $TenantDomain `
         -ShowBanner:$false `
-        -CommandName 'Get-ComplianceRetentionEvent','Get-SupervisoryReviewPolicyV2','Get-AttackSimulationTrainingCampaign','Get-Label','Get-LabelPolicy','Get-InformationBarrierPolicy','Get-OrganizationSegment','Get-ComplianceCase','Get-DlpCompliancePolicy','Get-DlpComplianceRule','Get-DlpSensitiveInformationType','Get-RetentionCompliancePolicy','Get-RetentionComplianceRule'
+        -CommandName 'Get-ComplianceRetentionEvent','Get-SupervisoryReviewPolicyV2','Get-Label','Get-LabelPolicy','Get-InformationBarrierPolicy','Get-OrganizationSegment','Get-ComplianceCase','Get-DlpCompliancePolicy','Get-DlpComplianceRule','Get-DlpSensitiveInformationType','Get-RetentionCompliancePolicy','Get-RetentionComplianceRule'
 }
 
 function Disconnect-Exo {

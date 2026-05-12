@@ -27,6 +27,11 @@ function Invoke-SensitiveTypes {
             custom_types  = @($custom | Select-Object -First 20)
             detail        = "$($types.Count) sensitive info types ($($custom.Count) custom, $($builtin.Count) built-in)"
         }
+    } catch {
+        if ($_.Exception.Message -like '*is not recognized*') {
+            return @{ pass = $false; na = $true; na_reason = 'not_licensed'; detail = "SensitiveTypes cmdlet not available  -- feature not licensed on this tenant" }
+        }
+        throw
     } finally {
         Disconnect-Exo
     }
