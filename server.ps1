@@ -126,12 +126,22 @@ try {
                     $result = & $script:Routes[$fnName] -Body $body
                     Send-JsonResponse -Response $response -StatusCode 200 -Body $result
                 } catch {
-                    # §8.3: Detail to log, generic message to client
-                    Write-Warning "[error] $fnName : $($_.Exception.Message)"
-                    Send-JsonResponse -Response $response -StatusCode 500 -Body @{
-                        pass   = $false
-                        na     = $true
-                        detail = "PSF ${fnName}: check failed"
+                    $errMsg = $_.Exception.Message
+                    Write-Warning "[error] ${fnName} : $errMsg"
+                    # License-gated cmdlets return 200 with na (not 500)
+                    if ($errMsg -like '*is not recognized*' -or $errMsg -like '*not available*') {
+                        Send-JsonResponse -Response $response -StatusCode 200 -Body @{
+                            pass      = $false
+                            na        = $true
+                            na_reason = 'not_licensed'
+                            detail    = "PSF ${fnName}: cmdlet not available -- feature not licensed on this tenant"
+                        }
+                    } else {
+                        Send-JsonResponse -Response $response -StatusCode 500 -Body @{
+                            pass   = $false
+                            na     = $true
+                            detail = "PSF ${fnName}: check failed"
+                        }
                     }
                 }
                 continue

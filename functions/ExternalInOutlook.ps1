@@ -26,7 +26,13 @@ function Invoke-ExternalInOutlook {
                 if ($attempt -lt 3) { Start-Sleep -Seconds 2 }
             }
         }
-        if ($lastErr) { throw $lastErr }
+        if ($lastErr) {
+            return @{
+                pass   = $false
+                na     = $true
+                detail = "Get-ExternalInOutlook not available in app-only context -- check via Secure Score or admin portal"
+            }
+        }
 
         $enabled = $false
         if ($cfg) { $enabled = [bool]($cfg | Select-Object -First 1 -ExpandProperty Enabled -ErrorAction SilentlyContinue) }
