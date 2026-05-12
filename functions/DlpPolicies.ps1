@@ -11,7 +11,7 @@ function Invoke-DlpPolicies {
     }
 
     try {
-        Connect-ExoForTenant -TenantDomain $tenantDomain -AppId $appId -TenantId $tenantId -ClientSecret $clientSecret
+        Connect-SccForTenant -TenantDomain $tenantDomain -AppId $appId -TenantId $tenantId -ClientSecret $clientSecret
 
         $policies = @(Get-DlpCompliancePolicy -ErrorAction Stop |
             Select-Object Name, Enabled, Mode, Type, ExchangeLocation, SharePointLocation, OneDriveLocation, TeamsLocation)

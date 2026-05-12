@@ -11,7 +11,7 @@ function Invoke-SensitiveTypes {
     }
 
     try {
-        Connect-ExoForTenant -TenantDomain $tenantDomain -AppId $appId -TenantId $tenantId -ClientSecret $clientSecret
+        Connect-SccForTenant -TenantDomain $tenantDomain -AppId $appId -TenantId $tenantId -ClientSecret $clientSecret
 
         $types = @(Get-DlpSensitiveInformationType -ErrorAction Stop |
             Select-Object Name, Publisher, Type, RecommendedConfidence)

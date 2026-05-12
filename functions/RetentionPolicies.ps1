@@ -11,7 +11,7 @@ function Invoke-RetentionPolicies {
     }
 
     try {
-        Connect-ExoForTenant -TenantDomain $tenantDomain -AppId $appId -TenantId $tenantId -ClientSecret $clientSecret
+        Connect-SccForTenant -TenantDomain $tenantDomain -AppId $appId -TenantId $tenantId -ClientSecret $clientSecret
 
         $policies = @(Get-RetentionCompliancePolicy -ErrorAction Stop |
             Select-Object Name, Enabled, Mode, Type, RetentionDuration, ExchangeLocation, SharePointLocation, ModernGroupLocation)
