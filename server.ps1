@@ -21,6 +21,12 @@ $script:Routes = @{
     'M365AppsUpdate'         = 'Invoke-M365AppsUpdate'
     'CommunicationCompliance'= 'Invoke-CommunicationCompliance'
     'RecordsRetention'       = 'Invoke-RecordsRetention'
+    'RetentionPolicies'      = 'Invoke-RetentionPolicies'
+    'DlpPolicies'            = 'Invoke-DlpPolicies'
+    'SensitiveTypes'         = 'Invoke-SensitiveTypes'
+    'SensitivityLabels'      = 'Invoke-SensitivityLabels'
+    'InformationBarriers'    = 'Invoke-InformationBarriers'
+    'EDiscoveryCases'        = 'Invoke-EDiscoveryCases'
 }
 
 # ── Helper: send JSON response ────────────────────────────────────
