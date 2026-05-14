@@ -49,6 +49,10 @@ docker build -t psf .
 | 14 Function Files | `functions/*.ps1` | One file per compliance check endpoint |
 | GitHub Actions CI | `.github/workflows/` | Build + push to GHCR on tag |
 
+## SBOM
+
+Every build generates a Software Bill of Materials (SBOM) from the built Docker image using [Syft](https://github.com/anchore/syft) v1.44.0 (checksum-verified). Both **CycloneDX JSON** and **SPDX JSON** formats are produced, capturing all OS packages, PowerShell modules, and .NET dependencies. SBOMs are uploaded as GitHub Actions artifacts (`sbom-<sha>`) with 90-day retention.
+
 ## License
 
 MIT

@@ -28,6 +28,43 @@ jobs:
           docker push ghcr.io/alenkaer/psf:latest
           docker push ghcr.io/alenkaer/psf:${{ github.sha }}
 
+      # === SBOM generation ===
+
+      - name: Install Syft (pinned + checksum-verified)
+        run: |
+          set -euo pipefail
+          SYFT_VERSION="1.44.0"
+          curl -sSfL "https://github.com/anchore/syft/releases/download/v${SYFT_VERSION}/syft_${SYFT_VERSION}_linux_amd64.tar.gz" \
+            -o /tmp/syft.tar.gz
+          curl -sSfL "https://github.com/anchore/syft/releases/download/v${SYFT_VERSION}/syft_${SYFT_VERSION}_checksums.txt" \
+            -o /tmp/syft_checksums.txt
+          expected=$(grep "syft_${SYFT_VERSION}_linux_amd64.tar.gz" /tmp/syft_checksums.txt | awk '{print $1}')
+          actual=$(sha256sum /tmp/syft.tar.gz | awk '{print $1}')
+          if [ "$expected" != "$actual" ]; then
+            echo "::error::Syft checksum mismatch! Expected: $expected Got: $actual"
+            exit 1
+          fi
+          tar -xzf /tmp/syft.tar.gz -C /usr/local/bin syft
+          rm /tmp/syft.tar.gz /tmp/syft_checksums.txt
+          syft version
+
+      - name: Generate SBOM from built image (CycloneDX + SPDX)
+        run: |
+          set -euo pipefail
+          mkdir -p sbom-out
+          syft ghcr.io/alenkaer/psf:latest \
+            -o cyclonedx-json=sbom-out/sbom-cyclonedx.json \
+            -o spdx-json=sbom-out/sbom-spdx.json \
+            --name "psf" \
+            --version "${{ github.sha }}"
+
+      - name: Upload SBOM artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: sbom-${{ github.sha }}
+          path: sbom-out/
+          retention-days: 90
+
       - name: Clean up credentials
         if: always()
         run: docker logout ghcr.io
