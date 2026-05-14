@@ -55,8 +55,8 @@ jobs:
           syft ghcr.io/alenkaer/psf:latest \
             -o cyclonedx-json=sbom-out/sbom-cyclonedx.json \
             -o spdx-json=sbom-out/sbom-spdx.json \
-            --name "psf" \
-            --version "${{ github.sha }}"
+            --source-name "psf" \
+            --source-version "${{ github.sha }}"
 
       - name: Upload SBOM artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
