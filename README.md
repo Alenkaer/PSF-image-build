@@ -36,6 +36,19 @@ docker build -t psf .
 | POST | `/api/CommunicationCompliance` | API key | CIS 7.5.1 |
 | POST | `/api/RecordsRetention` | API key | CIS 8.5.1 |
 
+## Components & Modules
+
+| Component | File(s) | Purpose |
+|---|---|---|
+| PowerShell 7.5 | Base image `mcr.microsoft.com/powershell:7.5-ubuntu-noble` | Runtime |
+| ExchangeOnlineManagement 3.8.0+ | `Install-Module` in Dockerfile | Connect-ExchangeOnline + Connect-IPPSSession with -AccessToken |
+| Pester 5.6.1 | `Install-Module` in Dockerfile | Unit test framework |
+| MSAL.PS | `shared/ExoConnect.ps1` | Client credentials grant for ExO/S&C OAuth tokens |
+| HTTP Listener | `server.ps1` | `System.Net.HttpListener` — zero-dependency HTTP API server |
+| ExO Connect Helper | `shared/ExoConnect.ps1` | `Connect-ExoForTenant` + `Connect-SccForTenant` token acquisition |
+| 14 Function Files | `functions/*.ps1` | One file per compliance check endpoint |
+| GitHub Actions CI | `.github/workflows/` | Build + push to GHCR on tag |
+
 ## License
 
 MIT
